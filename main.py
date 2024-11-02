@@ -62,24 +62,36 @@ async def on_message(message:discord.Message):
     args[0] = args[0][1::]
     print(args)
     if args[0] == "val-stats" :
-        data1, data2=GetValorantStats(username=args[1])
-        mbd = discord.Embed(title=args[1])
+        if len(args)==2:
+            username=args[1]
+        else:
+            username=""
+            for part in args[1::]:
+                username+=part+" "
+
+        print(username)
+
+        data1, data2=GetValorantStats(username=username)
+        mbd = discord.Embed(title=username)
         details=data1["data"]
         level=details["account_level"]
         region=details["region"]
         cards=details["card"]
         wide=cards["wide"]
-        current_rank=(((data2["data"])["current"])["tier"])["name"]
-        peak_rank=(((data2["data"])["peak"])["tier"])["name"]
-        rankurl=(str(current_rank).replace(" ", "_")) + "_Rank.png"
-        mbd.add_field(name = "Level", value = level)
-        file = discord.File("rank_png/"+rankurl, filename="output.png")
-        mbd.set_thumbnail(url="attachment://output.png")
-        mbd.set_image(url=wide)
-        mbd.add_field(name = "Region", value = region)
-        mbd.add_field(name = "Current Rank", value = current_rank)
-        mbd.add_field(name = "Peak Rank", value = peak_rank)
-        await message.channel.send(embed=mbd, file=file)
+        try:
+            current_rank=(((data2["data"])["current"])["tier"])["name"]
+            peak_rank=(((data2["data"])["peak"])["tier"])["name"]
+            rankurl=(str(current_rank).replace(" ", "_")) + "_Rank.png"
+            mbd.add_field(name = "Level", value = level)
+            file = discord.File("rank_png/"+rankurl, filename="output.png")
+            mbd.set_thumbnail(url="attachment://output.png")
+            mbd.set_image(url=wide)
+            mbd.add_field(name = "Region", value = region)
+            mbd.add_field(name = "Current Rank", value = current_rank)
+            mbd.add_field(name = "Peak Rank", value = peak_rank)
+            await message.channel.send(embed=mbd, file=file)
+        except:
+            await message.channel.send("```"+username+"```"+" has not played any ranked match")
         return
 
     if args[0]=="map":

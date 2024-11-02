@@ -21,8 +21,10 @@ def curl(mode, url, headers):
 def GetValorantStats(username):
     forurl=str(username).replace('#', '/')
     response=curl("GET", "https://api.henrikdev.xyz/valorant/v1/account/"+ forurl, {"Authorization" : val_api})
+    print(response.json)
     region=((response.json())["data"])["region"]
     response2=curl("GET", "https://api.henrikdev.xyz/valorant/v3/mmr/"+ region + "/pc/"+forurl,  {"Authorization" : val_api})
+    print(response2.json)
     return response.json(), response2.json()
 
 def UpdateAgentData():
