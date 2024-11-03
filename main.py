@@ -2,6 +2,7 @@ import discord
 import json
 import os
 from api import GetValorantStats, UpdateAgentData
+import ast
 
 with open ("config.json") as js:
     config=json.load(js)
@@ -26,10 +27,10 @@ def ReadValorantJson(data):
 def GetHelp():
     mbdhelp = discord.Embed(title="Help")
     mbdhelp.add_field(name = "Prefix", value = "` ' `")
-    #mbdhelp.add_field(name = "Informations About Agents :)", value = "Get any information / description / abilities, etc about an agent. Usage : `<Prefix> Agent <Agent Name>`")
+    mbdhelp.add_field(name = "Agents", value = "Get description / abilities, etc about an agent. Usage : `<Prefix>Agent <agentname>`")
     #mbdhelp.add_field(name = "Informations About Maps :)", value = "Get infos about any map. Usage : `<Prefix> Graph / Persp <Map>`")
-    mbdhelp.add_field(name = "Help :)", value = "Get this page. Usage `<Prefix> Help`")
-    mbdhelp.add_field(name = "Valorant Stats", value = "Get your ranked stats. Usage `<Prefix>val-stats <yourfullname>`")
+    mbdhelp.add_field(name = "Help :)", value = "Get this page. Usage `<prefix>Help`")
+    mbdhelp.add_field(name = "Valorant Stats", value = "Get your ranked stats. Usage `<prefix>val-stats <username>`")
     return mbdhelp
 
 def GetMap(map):
@@ -42,12 +43,14 @@ def GetMap(map):
 
 def GetAgent(agent):
     UpdateAgentData()
-    with open("data/agents.json", "r") as d:
-        data=json.load(d)
-        for info in data['data']:
-            if info['displayName'] == agent:
-                return info['description'], info['displayIcon'], info['fullPortraitV2']
-    return
+    try: 
+        with open("data/agents.json", "r") as d:
+            data=json.load(d)
+            for info in data['data']:
+                if info['displayName'] == agent:
+                    return info['description'], info['displayIcon'], info['fullPortraitV2'], info['role']['displayName'], info['role']['displayIcon'], info['role']['description'], info['abilities']
+    except:
+        return 0
 
 @client.event
 async def on_ready():
@@ -91,7 +94,7 @@ async def on_message(message:discord.Message):
             mbd.add_field(name = "Peak Rank", value = peak_rank)
             await message.channel.send(embed=mbd, file=file)
         except:
-            await message.channel.send("```"+username+"```"+" has not played any ranked match")
+            await message.channel.send("**"+username+"**"+" has not played any ranked match")
         return
 
     if args[0]=="map":
@@ -99,12 +102,17 @@ async def on_message(message:discord.Message):
         await message.channel.send(embed=mbd)
 
     if args[0]=="agent":
-        desc, icon, port =GetAgent(args[1])
-        print(desc)
-        mbd=discord.Embed(title=args[1])
-        mbd.add_field(name="Description", value=desc)
-        mbd.set_image(url=port)
-        mbd.set_thumbnail(url=icon)
-        await message.channel.send(embed=mbd)
-    
+        try:
+            desc, icon, port, role, roleicon, roledesc, abilities = GetAgent(args[1])
+            print(desc)
+            mbd=discord.Embed(title=args[1])
+            mbd.add_field(name="Description", value=desc)
+            mbd.add_field(name=role, value=roledesc)
+            mbd.set_image(url=port)
+            for i in abilities:
+                mbd.add_field(name=i['slot']+" "+i['displayName'], value=i['description'])
+            mbd.set_thumbnail(url=roleicon)
+            await message.channel.send(embed=mbd)
+        except:
+            await message.channel.send("**"+args[1]+"** is not a valorant agent.")
 client.run(TOKEN)

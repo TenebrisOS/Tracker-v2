@@ -7,7 +7,6 @@ with open ("config.json") as js:
 val_api=config["VALORANT"]
 
 def curl(mode, url, headers):
-    # data = {username : highscore}
     try:
         if mode=='GET':
             response = requests.get(url, headers=headers)
@@ -21,9 +20,12 @@ def curl(mode, url, headers):
 def GetValorantStats(username):
     forurl=str(username).replace('#', '/')
     response=curl("GET", "https://api.henrikdev.xyz/valorant/v1/account/"+ forurl, {"Authorization" : val_api})
-    print(response.json)
+    with open('test.json', 'w') as f:
+        json.dump(response.json(), f, indent=2)
     region=((response.json())["data"])["region"]
     response2=curl("GET", "https://api.henrikdev.xyz/valorant/v3/mmr/"+ region + "/pc/"+forurl,  {"Authorization" : val_api})
+    with open('test2.json', 'w') as f2:
+        json.dump(response2.json(), f2, indent=2)
     print(response2.json)
     return response.json(), response2.json()
 
