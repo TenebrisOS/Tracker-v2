@@ -35,3 +35,10 @@ def UpdateAgentData():
         #print(response.json())
         json.dump(response.json(), f, indent=2)
         return
+
+def UpdateMapsData():
+    response=curl("GET", "https://valorant-api.com/v1/maps", None)
+    with open('data/maps.json', 'w') as f:
+        #print(response.json())
+        json.dump(response.json(), f, indent=2)
+        return

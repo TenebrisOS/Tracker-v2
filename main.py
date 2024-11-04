@@ -1,7 +1,7 @@
 import discord
 import json
 import os
-from api import GetValorantStats, UpdateAgentData
+from api import GetValorantStats, UpdateAgentData, UpdateMapsData
 import ast
 
 with open ("config.json") as js:
@@ -27,19 +27,22 @@ def ReadValorantJson(data):
 def GetHelp():
     mbdhelp = discord.Embed(title="Help")
     mbdhelp.add_field(name = "Prefix", value = "` ' `")
-    mbdhelp.add_field(name = "Agents", value = "Get description / abilities, etc about an agent. Usage : `<Prefix>Agent <agentname>`")
-    #mbdhelp.add_field(name = "Informations About Maps :)", value = "Get infos about any map. Usage : `<Prefix> Graph / Persp <Map>`")
-    mbdhelp.add_field(name = "Help :)", value = "Get this page. Usage `<prefix>Help`")
+    mbdhelp.add_field(name = "Agents", value = "Description / abilities, etc about an agent. Usage : `<Prefix>Agent <agentname>`")
+    mbdhelp.add_field(name = "Maps", value = "Basic infos about any map. Usage : `<prefix>map <mapname>`")
+    mbdhelp.add_field(name = "Help ", value = "Get this page. Usage `<prefix>Help`")
     mbdhelp.add_field(name = "Valorant Stats", value = "Get your ranked stats. Usage `<prefix>val-stats <username>`")
     return mbdhelp
 
 def GetMap(map):
-#    desc, img, graph=GetMapData(map)
-#    mbd=discord.Embed(title=map)
-#    mbd.add_field(name="Description", value=desc)
-#    mbd.set_thumbnail(url=img)
-#    mbd.set_image(url=graph)
-    return
+    UpdateMapsData()
+    try: 
+        with open("data/maps.json", "r") as d:
+            data=json.load(d)
+            for info in data['data']:
+                if info['displayName'] == map:
+                    return info['displayIcon'], info['splash'], info['tacticalDescription']
+    except:
+        return 0
 
 def GetAgent(agent):
     UpdateAgentData()
@@ -49,6 +52,7 @@ def GetAgent(agent):
             for info in data['data']:
                 if info['displayName'] == agent:
                     return info['description'], info['displayIcon'], info['fullPortraitV2'], info['role']['displayName'], info['role']['displayIcon'], info['role']['description'], info['abilities']
+                    
     except:
         return 0
 
@@ -98,8 +102,15 @@ async def on_message(message:discord.Message):
         return
 
     if args[0]=="map":
-        mbd=GetMap(args[1])
-        await message.channel.send(embed=mbd)
+        try:
+            icon, image, tact = GetMap(args[1])
+            mbd=discord.Embed(title=args[1])
+            mbd.add_field(name="Tactical Description", value=tact)
+            mbd.set_image(url=image)
+            mbd.set_thumbnail(url=icon)
+            await message.channel.send(embed=mbd)
+        except:
+            await message.channel.send("**"+args[1]+"** is not a valorant map.")
 
     if args[0]=="agent":
         try:
