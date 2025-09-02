@@ -10,5 +10,6 @@ Simple discord Bot that uses Henrik's valorant api to share basic informations a
 - Bitcoin : ```bc1qfxg9wg97vklzselnayy0eutk5t9cpy048jmzzf```
 - Ethereum : ```0x859477061053a5a6a72466fee128fbdff21a34ba```
 - Solana : ```UDyMrbQh5LTBXAT3K22jRZCfnLpw4CwztiYcXBtvd4t```
+- Verus : ```RWJ67efCytvy2sJewjNQgc4fxjfpWgHUi5```
 ## Credits
 This project was created by [TenebrisOS](https://github.com/TenebrisOS) with the use of [Henrik's valorant API](https://docs.henrikdev.xyz/)
